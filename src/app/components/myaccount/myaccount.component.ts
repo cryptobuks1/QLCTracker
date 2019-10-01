@@ -56,7 +56,12 @@ export class MyaccountComponent implements OnInit {
   	isNaN = isNaN;
 
   	processingPending = false;
-  	processingPendingBlocks = [];
+	processingPendingBlocks = [];
+	  
+	latestContractRewards = [];
+	latestOtherTranscations = [];
+
+	filterContractRewards = false;
   
   	msg1 = '';
 	msg2 = '';
@@ -239,6 +244,11 @@ export class MyaccountComponent implements OnInit {
 				}
 				if (tokenMap.hasOwnProperty(block.token)) {
 					block.tokenInfo = tokenMap[block.token];
+				}
+				if (block.type === 'ContractReward') {
+					this.latestContractRewards.push(block);
+				} else {
+					this.latestOtherTranscations.push(block);
 				}
 				this.walletAccount.latestTransactions.push(block);
 			}
