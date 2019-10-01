@@ -202,30 +202,7 @@ export class StakingCreateComponent implements OnInit {
     this.recoverErrorMsg = '';
     this.recoverSteps = [];
 
-    const pledgeInfoByTransactionID = await this.nep5api.pledgeInfoByTransactionID(this.recoverForm.value.recover_txid);
-    
-    this.recoverSteps.push({ msg: 'Checking if a Pledge already exsists.'});
-    if (pledgeInfoByTransactionID.result) {
-      const pledgeInfo = pledgeInfoByTransactionID.result;
-      if (pledgeInfo.state != 'PledgeStart' && pledgeInfo.state != 'PledgeProcess') {
-        this.recoverSteps.push({ msg: 'ERROR - Pledge already proccessed.'});
-        this.checkingTxid = 0;
-        return;
-      }
-      if (pledgeInfo.state == 'PledgeStart' || pledgeInfo.state == 'PledgeProcess') {
-        this.recoverSteps.push({ msg: 'Pledge found! Press "CONTINUE INVOKE" to proceed.'});
-        this.continueInvokePledge = pledgeInfo;
-        this.continueInvoke = 1;
-        this.checkingTxid = 0;
-        return;
-      }
-    } 
-    if (pledgeInfoByTransactionID.error) {
-      if (pledgeInfoByTransactionID.error.message == 'Key not found') {
-        this.recoverSteps.push({ msg: 'No pledge found. Checking if TXID is a lock.'});
-      }
-      
-    }
+    // check if TXID is a lock
     const txData = await this.neoService.contractGetLockInfo(this.recoverForm.value.recover_txid);
     if (txData === false) {
       this.recoverSteps.push({ msg: 'Wrong NEO wallet password.'});
@@ -235,10 +212,28 @@ export class StakingCreateComponent implements OnInit {
       this.recoverSteps.push({ msg: 'TXID lock found.'});
       const walletAccount = await this.walletService.getWalletAccount(txData.beneficial);
       if (!walletAccount) {
-        this.recoverSteps.push({ msg: 'Invalid beneficial.'});
+        this.recoverSteps.push({ msg: 'ERROR - QLC address not found. Please add the connected QLC address and try again.'});
         this.checkingTxid = 0;
         return;
       }
+      const neoWallet= await this.walletService.getNeoWallet(txData.neoAddress);
+      if (!neoWallet) {
+        this.recoverSteps.push({ msg: 'ERROR - NEO address not found. Please add the connected NEO address and try again.'});
+        this.checkingTxid = 0;
+        return;
+      }
+
+      this.recoverSteps.push({ msg: 'Checking pledge status.'});
+      const pledgeInfoByTransactionID = await this.nep5api.pledgeInfoByTransactionID(this.recoverForm.value.recover_txid);
+      if (pledgeInfoByTransactionID.result) {
+        const pledgeInfo = pledgeInfoByTransactionID.result;
+        if (pledgeInfo.state != 'PledgeStart' && pledgeInfo.state != 'PledgeProcess') {
+          this.recoverSteps.push({ msg: 'ERROR - Pledge already proccessed.'});
+          this.checkingTxid = 0;
+          return;
+        }
+      }
+
       this.checkingTxid = 0;
       this.recovering_txid = 1;
       this.stakingForm.get('fromNEOWallet').setValue(txData.neoAddress);
@@ -256,6 +251,9 @@ export class StakingCreateComponent implements OnInit {
       }
       this.checkingTxid = 0;
     }
+
+    return;
+   
   }
 
   private markFormGroupTouched(formGroup: FormGroup) {
@@ -556,6 +554,13 @@ export class StakingCreateComponent implements OnInit {
                             ? await this.nep5api.mintagePledge(txid)
                             : await this.nep5api.benefitPledge(txid)
                             ;
+
+      if (pledgeResult.error) {
+        if (pledgeResult.error.message == "get lockinfo error: value is not lockinfo struct : map[type:ByteArray value:]") {
+          this.invokeSteps.push({ msg: 'ERROR. TXID is not a lock.', checkimg: 1});
+        }
+        return;
+      }
       if (!pledgeResult.result) {
         this.invokeSteps.push({ msg: 'Pledge ERROR.', link: '/staking-create', linkText: 'Please use RECOVER to recover a failed TX.'});
         /*console.log('pledgeResult error repeating');
@@ -606,6 +611,13 @@ export class StakingCreateComponent implements OnInit {
                             ? await this.nep5api.mintagePledge(txid)
                             : await this.nep5api.benefitPledge(txid)
                             ;
+
+      if (pledgeResult.error) {
+        if (pledgeResult.error.message == "get lockinfo error: value is not lockinfo struct : map[type:ByteArray value:]") {
+          this.invokeSteps.push({ msg: 'ERROR. TXID is not a lock.', checkimg: 1});
+        }
+        return;
+      }
       if (!pledgeResult.result) {
         console.log('pledgeResult error repeating');
         const waitTimer = timer(5000).subscribe( (data) => {
