@@ -372,6 +372,10 @@ export class WalletService {
 		return this.wallet.accounts.find(a => a.id === accountID);
 	}
 
+	async getNeoWallet(walletID) {
+		return this.wallet.neowallets.find(a => a.id === walletID);
+	}
+
 	async loadStoredWallet() {
 		this.resetWallet();
 

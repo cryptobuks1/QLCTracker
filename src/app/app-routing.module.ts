@@ -26,6 +26,7 @@ import { SendneoComponent } from './components/sendneo/sendneo.component';
 import { MystakingsComponent } from './components/mystakings/mystakings.component';
 import { StakingCreateComponent } from './components/staking-create/staking-create.component';
 import { StakingRevokeComponent } from './components/staking-revoke/staking-revoke.component';
+import { NeoSettingsComponent } from './components/neo-settings/neo-settings.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -59,6 +60,7 @@ const routes: Routes = [
   { path: 'myneowallet/:wallet', component: MyneowalletComponent },
   { path: 'sendneo', component: SendneoComponent },
   { path: 'sendneo/:wallet', component: SendneoComponent },
+  { path: 'neosettings', component: NeoSettingsComponent },
   { path: 'mystakings', component: MystakingsComponent },
   { path: 'staking-create', component: StakingCreateComponent },
   { path: 'staking-revoke', component: StakingRevokeComponent },

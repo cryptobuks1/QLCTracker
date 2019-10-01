@@ -58,6 +58,7 @@ import { StakingRevokeComponent } from './components/staking-revoke/staking-revo
 import { AmountValidatorDirective } from './directives/amount-validator.directive';
 import { ModalUnlockComponent } from './components/modal-unlock/modal-unlock.component';
 import { DesktopComponent } from './components/desktop/desktop.component';
+import { NeoSettingsComponent } from './components/neo-settings/neo-settings.component';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -101,7 +102,8 @@ export function createTranslateLoader(http: HttpClient) {
     StakingRevokeComponent,
     AmountValidatorDirective,
     ModalUnlockComponent,
-    DesktopComponent
+    DesktopComponent,
+    NeoSettingsComponent
   ],
   imports: [
     BrowserModule,
